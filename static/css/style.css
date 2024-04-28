@@ -248,11 +248,12 @@ h6 {
   }
 }
 
-#header .social-links {
-  margin-top: 40px;
+.social-links.disabled a {
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
-#header .social-links a {
+.social-links a {
   font-size: 16px;
   color: #fff;
   margin: 0 3px;
@@ -266,11 +267,11 @@ h6 {
   justify-content: center;
 }
 
-#header .social-links a i {
+.social-links a i {
   line-height: 0;
 }
 
-#header .social-links a:hover {
+.social-links a:hover {
   background: #24b7a4;
   border-color: #24b7a4;
 }

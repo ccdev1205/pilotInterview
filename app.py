@@ -8,7 +8,6 @@ app.secret_key = os.urandom(24)
 @app.route('/', methods=['POST', 'GET'])
 def render_home():
     if request.method == 'POST':
-        print("HELLOOOO" + request.form['pages'])
         input_pages = request.form['pages']
         questions = pr.generate(input_pages)
         return questions

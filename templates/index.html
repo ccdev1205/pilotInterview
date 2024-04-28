@@ -51,8 +51,16 @@
                     </div>
                 </div>
                 <div id="showAnswerForm" style="height: 100%;">
-                    <div class="text-center">
-                        <p id="qNumber"></p>
+                    <div style="display: flex; justify-content: space-evenly; align-items: baseline;">
+                      <div class="social-links text-center" id="qPrev" onclick="prevQuestion()">
+                        <a href="#"><i class="bi bi-arrow-bar-left"></i></a>
+                      </div>
+                      <div class="text-center">
+                          <p id="qNumber"></p>
+                      </div>
+                      <div class="social-links text-center" id="qNext" onclick="nextQuestion()">
+                        <a href="#"><i class="bi bi-arrow-bar-right"></i></a>
+                      </div>
                     </div>
                     <div style="height: inherit; padding-top: 3em; display: flex; flex-direction: column; justify-content: space-evenly;">
                         <div class="text-center">
@@ -96,11 +104,39 @@
 
   <script type="text/javascript">
     var generatedQuestions = [];
+    var currentQNumber = 0;
+    var totalQuestions = 0;
+    
     generateQuestions();
 
+    function isValidRange(){
+      var pages = $("#pages").val();
+      pages = pages.replace(/\s/g, '');
+      if(!/^\d*?\-?\d*$/gi.test(pages)){
+        alert("Error: Given page range incorrect format! Example range: 1-10");
+        return false;
+      }else{
+        var pageArr = pages.split("-");
+        if(pageArr[0] < 1 || pageArr[1] > 261){
+          alert("Error: Given page range out of bounds! Entire range: 1-261");
+          return false;
+        }
+      }
+
+      return true;
+    }
+
     function generateQuestions(){
+        if(!isValidRange()) return;
+        generatedQuestions = [];
+        currentQNumber = 0;
+        totalQuestions = 0
+        $('#qNext').removeClass("disabled");
+        if(currentQNumber < 1)
+          $('#qPrev').addClass("disabled");
 
         $('#showAnswerForm').hide();
+        $("#answerContainer").hide();
         $('#loadingForm').show();
 
         $.ajax({
@@ -109,20 +145,45 @@
             data: $('#myFormName').serialize(),
             success: function (questions) {
                 generatedQuestions = generatedQuestions.concat(questions);
-                $('#qNumber').text(`1 of ${generatedQuestions.length} questions`);
-                console.log(Object.keys(generatedQuestions[0])[0])
-                $('#questionText').text(`${Object.keys(generatedQuestions[0])[0]}`);
+                totalQuestions = generatedQuestions.length;
+                $('#qNumber').text(`${currentQNumber + 1} of ${totalQuestions} questions`);
+                $('#questionText').text(`${Object.keys(generatedQuestions[currentQNumber])[0]}`);
                 $('#showAnswerForm').show();
+                $("#answerContainer").hide();
                 $('#loadingForm').hide();
             }
         });
     }
 
+    function prevQuestion(){
+      if(currentQNumber == 0) return;
+      currentQNumber--;
+      if(currentQNumber < 1)
+        $('#qPrev').addClass("disabled");
+      if(currentQNumber < generatedQuestions.length){
+        $('#qNext').removeClass("disabled");
+        $('#qNumber').text(`${currentQNumber + 1} of ${totalQuestions} questions`);
+        $("#answerContainer").hide();
+        $('#questionText').text(`${Object.keys(generatedQuestions[currentQNumber])[0]}`);
+      }
+    }
+
+    function nextQuestion(){
+      if(currentQNumber == generatedQuestions.length - 1) return;
+      currentQNumber++;
+      if(currentQNumber > 0)
+        $('#qPrev').removeClass("disabled");
+      if(currentQNumber >= generatedQuestions.length - 1)
+        $('#qNext').addClass("disabled");
+      if(currentQNumber < generatedQuestions.length){
+        $('#qNumber').text(`${currentQNumber + 1} of ${totalQuestions} questions`);
+        $("#answerContainer").hide();
+        $('#questionText').text(`${Object.keys(generatedQuestions[currentQNumber])[0]}`);
+      }
+    }
+
     function showAnswer(){
-        console.log(generatedQuestions)
-        console.log(Object.values(generatedQuestions[0])[0])
-        // $("#answerBtn").show();
-        $('#answerText').text(`${Object.values(generatedQuestions[0])[0]}`);
+        $('#answerText').text(`${Object.values(generatedQuestions[currentQNumber])[0]}`);
         $("#answerContainer").show();
     }
   </script>
